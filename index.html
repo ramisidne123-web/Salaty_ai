@@ -2,25 +2,35 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>صلاتي AI</title>
 
 <style>
 *{box-sizing:border-box}
+
 body{
   margin:0;
   font-family:Arial,sans-serif;
   background:#f4f7f5;
   color:#17231d;
 }
+
 header{
-  padding:25px 18px 18px;
-  text-align:center;
   background:white;
+  padding:24px 16px;
+  text-align:center;
   border-bottom:1px solid #ddd;
 }
-header h1{margin:0;font-size:32px}
-header p{margin:10px 0 0;color:#68736d}
+
+header h1{
+  margin:0;
+  font-size:32px;
+}
+
+header p{
+  color:#68736d;
+  margin:8px 0 0;
+}
 
 main{
   max-width:760px;
@@ -30,9 +40,9 @@ main{
 
 .card{
   background:white;
-  border-radius:20px;
   padding:20px;
   margin-bottom:18px;
+  border-radius:20px;
   box-shadow:0 4px 18px rgba(0,0,0,.06);
 }
 
@@ -42,8 +52,8 @@ button{
   width:100%;
   border:0;
   border-radius:15px;
-  padding:16px;
-  margin-top:10px;
+  padding:15px;
+  margin:7px 0;
   font-size:18px;
   font-weight:bold;
   cursor:pointer;
@@ -56,21 +66,16 @@ button.secondary{
   color:#176b4d;
 }
 
-button:disabled{opacity:.5}
-
-.hidden{display:none!important}
-
-.steps{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
+button.danger{
+  background:#a52828;
 }
 
-.step{
-  background:#f1f5f2;
-  padding:14px;
-  border-radius:14px;
-  text-align:center;
+button:disabled{
+  opacity:.5;
+}
+
+.hidden{
+  display:none!important;
 }
 
 .camera{
@@ -78,8 +83,9 @@ button:disabled{opacity:.5}
   width:100%;
   aspect-ratio:3/4;
   background:#111;
-  border-radius:20px;
+  border-radius:18px;
   overflow:hidden;
+  margin-top:15px;
 }
 
 video,canvas{
@@ -92,53 +98,86 @@ video,canvas{
 }
 
 .status{
-  margin-top:14px;
+  background:#f1f5f2;
   padding:16px;
   border-radius:15px;
-  background:#f1f5f2;
+  margin-top:15px;
+  text-align:center;
   font-size:20px;
   font-weight:bold;
-  text-align:center;
 }
 
 .message{
-  margin-top:10px;
-  padding:14px;
-  border-radius:14px;
   background:#fff8df;
+  padding:15px;
+  border-radius:15px;
+  margin-top:12px;
   line-height:1.7;
+}
+
+.warning{
+  background:#fff0f0;
+  padding:15px;
+  border-radius:15px;
+  margin-top:12px;
+  line-height:1.7;
+}
+
+.steps{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+.step{
+  background:#f1f5f2;
+  padding:15px;
+  border-radius:14px;
+  text-align:center;
+  line-height:1.7;
+}
+
+.counter{
+  text-align:center;
+  font-size:25px;
+  font-weight:bold;
+  padding:15px;
+}
+
+.progress{
+  height:10px;
+  background:#e1e6e3;
+  border-radius:20px;
+  overflow:hidden;
+  margin:12px 0;
+}
+
+.progress div{
+  height:100%;
+  width:0;
+  background:#176b4d;
+  transition:.3s;
+}
+
+select{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid #ccc;
+  font-size:17px;
+  background:white;
 }
 
 .small{
   font-size:14px;
   color:#68736d;
-  line-height:1.7;
-}
-
-ul{
-  line-height:2;
-  padding-right:25px;
-}
-
-.progress{
-  height:10px;
-  background:#e3e8e5;
-  border-radius:20px;
-  overflow:hidden;
-  margin:15px 0;
-}
-
-.progress div{
-  height:100%;
-  width:0%;
-  background:#176b4d;
-  transition:.3s;
+  line-height:1.8;
 }
 
 footer{
   text-align:center;
-  padding:30px;
   color:#777;
+  padding:25px;
   font-size:13px;
 }
 </style>
@@ -153,144 +192,173 @@ footer{
 
 <main>
 
-<!-- الصفحة الرئيسية -->
+<!-- الرئيسية -->
 <section id="home" class="card">
-  <h2>مرحبًا بك 🌿</h2>
 
-  <p>
-    هذا التطبيق يساعدك على تعلّم الصلاة
-    ومراجعة بعض الوضعيات الحركية باستخدام الكاميرا.
-  </p>
+<h2>مرحبًا بك 🌿</h2>
 
-  <button onclick="showLearn()">
-    📚 تعلّم الصلاة
-  </button>
+<p>
+تطبيق تجريبي يساعدك على تعلم حركات الصلاة
+ومراجعة بعض الوضعيات باستخدام كاميرا الهاتف.
+</p>
 
-  <button onclick="showCamera()" class="secondary">
-    📷 ابدأ المراقبة
-  </button>
+<button onclick="openLearn()">
+📚 تعلّم الصلاة
+</button>
 
-  <p class="small">
-    مهم: التطبيق أداة تعليمية ولا يحكم على صحة الصلاة
-    أو بطلانها.
-  </p>
+<button onclick="openMonitor()" class="secondary">
+📷 ابدأ المراقبة
+</button>
+
+<p class="small">
+التطبيق مساعد تعليمي فقط، ولا يحكم بأن الصلاة صحيحة
+أو باطلة، ولا يغني عن سؤال أهل العلم.
+</p>
+
 </section>
 
 
-<!-- تعليم الصلاة -->
+<!-- التعليم -->
 <section id="learn" class="card hidden">
 
-  <h2>📚 تعلّم الصلاة</h2>
+<h2>📚 تعلّم الصلاة</h2>
 
-  <div class="steps">
+<div class="steps">
 
-    <div class="step">
-      <b>1</b><br>
-      🧍 القيام
-    </div>
+<div class="step">
+🧍<br>
+<b>القيام</b><br>
+الوقوف للصلاة
+</div>
 
-    <div class="step">
-      <b>2</b><br>
-      🙏 تكبيرة الإحرام
-    </div>
+<div class="step">
+🤲<br>
+<b>تكبيرة الإحرام</b><br>
+الله أكبر
+</div>
 
-    <div class="step">
-      <b>3</b><br>
-      🙇 الركوع
-    </div>
+<div class="step">
+🙇<br>
+<b>الركوع</b><br>
+الانحناء
+</div>
 
-    <div class="step">
-      <b>4</b><br>
-      🧍 الرفع
-    </div>
+<div class="step">
+🧍<br>
+<b>الرفع</b><br>
+العودة من الركوع
+</div>
 
-    <div class="step">
-      <b>5</b><br>
-      🧎 السجود
-    </div>
+<div class="step">
+🧎<br>
+<b>السجود</b><br>
+وضعية السجود
+</div>
 
-    <div class="step">
-      <b>6</b><br>
-      🪑 الجلوس
-    </div>
+<div class="step">
+🪑<br>
+<b>الجلوس</b><br>
+بين السجدتين
+</div>
 
-  </div>
+<div class="step">
+🪑<br>
+<b>التشهد</b><br>
+الجلوس للتشهد
+</div>
 
-  <hr>
+<div class="step">
+👋<br>
+<b>السلام</b><br>
+نهاية الصلاة
+</div>
 
-  <h3>🧎 السجود</h3>
+</div>
 
-  <p>
-    في السجود توجد هيئة وأحكام متعددة،
-    وسنضيف لاحقًا نظامًا ذكيًا لمراجعة الوضعيات
-    بعد اعتماد القواعد الشرعية من مصادر موثوقة.
-  </p>
+<hr>
 
-  <h3>🙇 الركوع</h3>
+<h3>🕌 كيف يعمل التطبيق؟</h3>
 
-  <p>
-    سنعمل لاحقًا على تحليل وضع الظهر والوركين
-    والركبتين والذراعين أثناء الركوع.
-  </p>
+<p>
+ضع الهاتف في مكان ثابت بحيث يستطيع رؤية جسمك كاملًا.
+ثم يبدأ النظام في تحليل الحركة ومحاولة التعرف على
+الوضعية الحالية.
+</p>
 
-  <button onclick="showCamera()">
-    📷 تجربة الكاميرا
-  </button>
+<button onclick="openMonitor()">
+📷 تجربة المراقبة
+</button>
 
-  <button onclick="goHome()" class="secondary">
-    ← العودة
-  </button>
+<button onclick="goHome()" class="secondary">
+← العودة
+</button>
 
 </section>
 
 
-<!-- الكاميرا -->
-<section id="cameraPage" class="card hidden">
+<!-- المراقبة -->
+<section id="monitor" class="card hidden">
 
-  <h2>📷 المراقبة الذكية</h2>
+<h2>📷 المراقبة الذكية</h2>
 
-  <p class="small">
-    ضع الهاتف في مكان ثابت بحيث يظهر جسمك كاملًا.
-    لا تستخدم الهاتف أثناء الصلاة.
-  </p>
+<label>اختر الصلاة:</label>
 
-  <button id="startCamera">
-    تشغيل الكاميرا
-  </button>
+<select id="prayer">
+<option value="fajr">الفجر — ركعتان</option>
+<option value="dhuhr">الظهر — أربع ركعات</option>
+<option value="asr">العصر — أربع ركعات</option>
+<option value="maghrib">المغرب — ثلاث ركعات</option>
+<option value="isha">العشاء — أربع ركعات</option>
+</select>
 
-  <div id="loading" class="status hidden">
-    ⏳ جاري تجهيز الذكاء الاصطناعي...
-  </div>
+<button id="startBtn">
+▶️ بدء المراقبة
+</button>
 
-  <div id="cameraBox" class="camera hidden">
-    <video id="video" autoplay playsinline muted></video>
-    <canvas id="canvas"></canvas>
-  </div>
+<div id="loading" class="status hidden">
+⏳ جاري تجهيز النظام...
+</div>
 
-  <div id="status" class="status">
-    لم تبدأ المراقبة بعد
-  </div>
+<div id="camera" class="camera hidden">
+<video id="video" autoplay playsinline muted></video>
+<canvas id="canvas"></canvas>
+</div>
 
-  <div id="message" class="message hidden"></div>
+<div id="status" class="status">
+لم تبدأ المراقبة
+</div>
 
-  <div class="progress">
-    <div id="progressBar"></div>
-  </div>
+<div id="poseMessage" class="message hidden"></div>
 
-  <button onclick="stopCamera()" class="secondary">
-    إيقاف الكاميرا
-  </button>
+<div id="warning" class="warning hidden"></div>
 
-  <button onclick="goHome()" class="secondary">
-    ← الرئيسية
-  </button>
+<div class="counter">
+الركعة: <span id="rakaa">0</span>
+</div>
+
+<div class="progress">
+<div id="progress"></div>
+</div>
+
+<button id="stopBtn" class="danger">
+⏹️ إيقاف
+</button>
+
+<button onclick="goHome()" class="secondary">
+← الرئيسية
+</button>
+
+<p class="small">
+ملاحظة: التعرف على الوضعيات في هذه النسخة تجريبي.
+لا تعتمد عليه للحكم على صحة الصلاة.
+</p>
 
 </section>
 
 </main>
 
 <footer>
-  صلاتي AI — نسخة تجريبية
+صلاتي AI — نسخة تجريبية
 </footer>
 
 
@@ -299,125 +367,223 @@ footer{
 import {
   PoseLandmarker,
   FilesetResolver
-} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/vision_bundle.mjs";
+} from
+"https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/vision_bundle.mjs";
 
 
-const video = document.getElementById("video");
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const video =
+document.getElementById("video");
 
-const startButton = document.getElementById("startCamera");
-const loading = document.getElementById("loading");
-const cameraBox = document.getElementById("cameraBox");
-const statusBox = document.getElementById("status");
-const messageBox = document.getElementById("message");
-const progressBar = document.getElementById("progressBar");
+const canvas =
+document.getElementById("canvas");
 
-let poseLandmarker = null;
+const ctx =
+canvas.getContext("2d");
+
+const startBtn =
+document.getElementById("startBtn");
+
+const stopBtn =
+document.getElementById("stopBtn");
+
+const camera =
+document.getElementById("camera");
+
+const statusBox =
+document.getElementById("status");
+
+const loading =
+document.getElementById("loading");
+
+const poseMessage =
+document.getElementById("poseMessage");
+
+const warning =
+document.getElementById("warning");
+
+const rakaaBox =
+document.getElementById("rakaa");
+
+const progress =
+document.getElementById("progress");
+
+let landmarker = null;
 let stream = null;
 let running = false;
-let lastVideoTime = -1;
+let lastTime = -1;
+
+let currentPose = "";
+let previousPose = "";
+
+let rakaa = 0;
+let sajdaCount = 0;
+let rukuCount = 0;
 
 
-/* ---------------------------
+/* =========================
    التنقل
----------------------------- */
+========================= */
 
-window.showLearn = function(){
-  document.getElementById("home").classList.add("hidden");
-  document.getElementById("learn").classList.remove("hidden");
-  document.getElementById("cameraPage").classList.add("hidden");
+window.openLearn = function(){
+
+  document
+  .getElementById("home")
+  .classList.add("hidden");
+
+  document
+  .getElementById("monitor")
+  .classList.add("hidden");
+
+  document
+  .getElementById("learn")
+  .classList.remove("hidden");
 };
 
-window.showCamera = function(){
-  document.getElementById("home").classList.add("hidden");
-  document.getElementById("learn").classList.add("hidden");
-  document.getElementById("cameraPage").classList.remove("hidden");
+
+window.openMonitor = function(){
+
+  document
+  .getElementById("home")
+  .classList.add("hidden");
+
+  document
+  .getElementById("learn")
+  .classList.add("hidden");
+
+  document
+  .getElementById("monitor")
+  .classList.remove("hidden");
 };
+
 
 window.goHome = function(){
-  stopCamera();
-  document.getElementById("home").classList.remove("hidden");
-  document.getElementById("learn").classList.add("hidden");
-  document.getElementById("cameraPage").classList.add("hidden");
+
+  stopMonitoring();
+
+  document
+  .getElementById("home")
+  .classList.remove("hidden");
+
+  document
+  .getElementById("learn")
+  .classList.add("hidden");
+
+  document
+  .getElementById("monitor")
+  .classList.add("hidden");
 };
 
 
-/* ---------------------------
-   تشغيل الكاميرا
----------------------------- */
+/* =========================
+   تشغيل النظام
+========================= */
 
-startButton.addEventListener("click", startSystem);
+startBtn.addEventListener(
+"click",
+startMonitoring
+);
 
-async function startSystem(){
+
+async function startMonitoring(){
 
   try{
 
-    startButton.disabled = true;
+    startBtn.disabled = true;
 
     loading.classList.remove("hidden");
 
     statusBox.textContent =
-      "⏳ جاري تشغيل الكاميرا...";
+    "⏳ جاري تشغيل الكاميرا...";
 
-    stream = await navigator.mediaDevices.getUserMedia({
+
+    stream =
+    await navigator.mediaDevices.getUserMedia({
+
       video:{
-        facingMode:"environment",
-        width:{ideal:640},
-        height:{ideal:480}
+        facingMode:{
+          ideal:"environment"
+        },
+
+        width:{
+          ideal:640
+        },
+
+        height:{
+          ideal:480
+        }
       },
+
       audio:false
+
     });
+
 
     video.srcObject = stream;
 
+
     await new Promise(resolve=>{
-      video.onloadedmetadata = resolve;
+
+      video.onloadedmetadata =
+      resolve;
+
     });
 
-    cameraBox.classList.remove("hidden");
+
+    camera.classList.remove("hidden");
+
 
     statusBox.textContent =
-      "⏳ جاري تحميل نموذج الذكاء الاصطناعي...";
+    "⏳ جاري تحميل الذكاء الاصطناعي...";
 
 
-    const vision = await FilesetResolver.forVisionTasks(
+    const vision =
+    await FilesetResolver.forVisionTasks(
+
       "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+
     );
 
 
-    poseLandmarker =
-      await PoseLandmarker.createFromOptions(
-        vision,
-        {
-          baseOptions:{
-            modelAssetPath:
-            "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
+    landmarker =
+    await PoseLandmarker.createFromOptions(
 
-            delegate:"GPU"
-          },
+      vision,
 
-          runningMode:"VIDEO",
+      {
 
-          numPoses:1,
+        baseOptions:{
 
-          minPoseDetectionConfidence:.55,
+          modelAssetPath:
+          "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
 
-          minPosePresenceConfidence:.55,
+          delegate:"GPU"
 
-          minTrackingConfidence:.55
-        }
-      );
+        },
+
+        runningMode:"VIDEO",
+
+        numPoses:1,
+
+        minPoseDetectionConfidence:.5,
+
+        minPosePresenceConfidence:.5,
+
+        minTrackingConfidence:.5
+
+      }
+
+    );
 
 
     loading.classList.add("hidden");
 
     statusBox.textContent =
-      "🟢 جاهز — ابتعد قليلًا حتى يظهر جسمك كاملًا";
+    "🟢 جاهز — اجعل جسمك كاملًا ظاهرًا";
+
 
     running = true;
 
-    requestAnimationFrame(processFrame);
+    requestAnimationFrame(loop);
 
   }
 
@@ -427,61 +593,77 @@ async function startSystem(){
 
     loading.classList.add("hidden");
 
-    startButton.disabled = false;
+    startBtn.disabled = false;
 
     statusBox.textContent =
-      "❌ لم نستطع تشغيل الكاميرا.";
+    "❌ تعذر تشغيل الكاميرا";
 
-    messageBox.classList.remove("hidden");
+    warning.classList.remove("hidden");
 
-    messageBox.textContent =
-      "تأكد أنك سمحت للمتصفح باستخدام الكاميرا وأن الموقع مفتوح عبر HTTPS.";
+    warning.textContent =
+    "تأكد من السماح للمتصفح باستخدام الكاميرا، وأن الموقع يعمل عبر HTTPS.";
 
   }
+
 }
 
 
-/* ---------------------------
-   معالجة الفيديو
----------------------------- */
+/* =========================
+   الحلقة الرئيسية
+========================= */
 
-async function processFrame(){
+function loop(){
 
-  if(!running || !poseLandmarker) return;
+  if(!running || !landmarker)
+  return;
 
-  if(video.currentTime !== lastVideoTime){
 
-    lastVideoTime = video.currentTime;
+  if(video.currentTime !== lastTime){
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    lastTime =
+    video.currentTime;
+
+
+    canvas.width =
+    video.videoWidth;
+
+    canvas.height =
+    video.videoHeight;
+
 
     try{
 
       const result =
-        poseLandmarker.detectForVideo(
-          video,
-          performance.now()
-        );
+      landmarker.detectForVideo(
+        video,
+        performance.now()
+      );
 
-      drawPose(result);
 
-      analyzePose(result);
+      drawBody(result);
 
-    }catch(error){
-      console.error(error);
+      analyze(result);
+
     }
+
+    catch(error){
+
+      console.error(error);
+
+    }
+
   }
 
-  requestAnimationFrame(processFrame);
+
+  requestAnimationFrame(loop);
 }
 
 
-/* ---------------------------
-   رسم نقاط الجسم
----------------------------- */
+/* =========================
+   رسم الجسم
+========================= */
 
-function drawPose(result){
+function drawBody(result){
 
   ctx.clearRect(
     0,
@@ -490,20 +672,26 @@ function drawPose(result){
     canvas.height
   );
 
+
   if(
     !result.landmarks ||
     result.landmarks.length === 0
-  ) return;
+  )
+  return;
 
-  const points = result.landmarks[0];
 
-  for(const p of points){
+  const p =
+  result.landmarks[0];
 
-    if(p.visibility !== undefined &&
-       p.visibility < .4) continue;
 
-    const x = p.x * canvas.width;
-    const y = p.y * canvas.height;
+  for(const point of p){
+
+    const x =
+    point.x * canvas.width;
+
+    const y =
+    point.y * canvas.height;
+
 
     ctx.beginPath();
 
@@ -512,289 +700,517 @@ function drawPose(result){
       y,
       5,
       0,
-      Math.PI * 2
+      Math.PI*2
     );
 
     ctx.fill();
+
   }
 
 
-  const connections = [
+  const lines = [
+
     [11,12],
+
     [11,13],
     [13,15],
+
     [12,14],
     [14,16],
 
     [11,23],
     [12,24],
+
     [23,24],
 
     [23,25],
     [25,27],
-    [24,26],
-    [26,28],
 
-    [27,31],
-    [28,32]
+    [24,26],
+    [26,28]
+
   ];
 
 
-  for(const pair of connections){
+  for(const [a,b] of lines){
 
-    const a = points[pair[0]];
-    const b = points[pair[1]];
+    const p1=p[a];
+    const p2=p[b];
 
-    if(!a || !b) continue;
+    if(!p1 || !p2)
+    continue;
+
 
     ctx.beginPath();
 
     ctx.moveTo(
-      a.x * canvas.width,
-      a.y * canvas.height
+      p1.x*canvas.width,
+      p1.y*canvas.height
     );
 
     ctx.lineTo(
-      b.x * canvas.width,
-      b.y * canvas.height
+      p2.x*canvas.width,
+      p2.y*canvas.height
     );
 
     ctx.stroke();
+
   }
+
 }
 
 
-/* ---------------------------
+/* =========================
    تحليل الوضعية
----------------------------- */
+========================= */
 
-function analyzePose(result){
+function analyze(result){
 
   if(
     !result.landmarks ||
-    result.landmarks.length === 0
+    result.landmarks.length===0
   ){
 
     statusBox.textContent =
-      "👤 لم يتم اكتشاف الجسم";
-
-    progressBar.style.width = "0%";
+    "👤 لم يتم العثور على الشخص";
 
     return;
   }
 
 
-  const p = result.landmarks[0];
+  const p =
+  result.landmarks[0];
 
 
-  const nose = p[0];
+  const nose=p[0];
 
-  const leftShoulder = p[11];
-  const rightShoulder = p[12];
+  const ls=p[11];
+  const rs=p[12];
 
-  const leftElbow = p[13];
-  const rightElbow = p[14];
+  const le=p[13];
+  const re=p[14];
 
-  const leftWrist = p[15];
-  const rightWrist = p[16];
+  const lw=p[15];
+  const rw=p[16];
 
-  const leftHip = p[23];
-  const rightHip = p[24];
+  const lh=p[23];
+  const rh=p[24];
 
-  const leftKnee = p[25];
-  const rightKnee = p[26];
+  const lk=p[25];
+  const rk=p[26];
 
-  const leftAnkle = p[27];
-  const rightAnkle = p[28];
+  const la=p[27];
+  const ra=p[28];
 
 
-  if(!nose || !leftShoulder ||
-     !rightShoulder ||
-     !leftHip ||
-     !rightHip){
+  if(!nose || !ls || !rs ||
+     !lh || !rh ||
+     !lk || !rk ||
+     !la || !ra){
 
     statusBox.textContent =
-      "👤 أظهر جسمك كاملًا أمام الكاميرا";
+    "👤 أظهر جسمك كاملًا";
 
     return;
   }
 
 
   const shoulderY =
-    (leftShoulder.y + rightShoulder.y)/2;
-
-  const hipY =
-    (leftHip.y + rightHip.y)/2;
-
-  const kneeY =
-    (leftKnee.y + rightKnee.y)/2;
-
-  const ankleY =
-    (leftAnkle.y + rightAnkle.y)/2;
-
+  (ls.y+rs.y)/2;
 
   const shoulderX =
-    (leftShoulder.x + rightShoulder.x)/2;
+  (ls.x+rs.x)/2;
+
+
+  const hipY =
+  (lh.y+rh.y)/2;
 
   const hipX =
-    (leftHip.x + rightHip.x)/2;
+  (lh.x+rh.x)/2;
 
 
-  const torsoAngle =
-    Math.abs(
-      Math.atan2(
-        shoulderY - hipY,
-        shoulderX - hipX
-      )
-    );
+  const kneeY =
+  (lk.y+rk.y)/2;
+
+
+  const ankleY =
+  (la.y+ra.y)/2;
+
+
+  let pose =
+  "غير معروف";
 
 
   /*
-    هذه المرحلة هندسية تجريبية فقط.
+    قيام تقريبي
+  */
+
+  if(
+
+    Math.abs(
+      shoulderX-hipX
+    ) < .12 &&
+
+    Math.abs(
+      nose.y-ankleY
+    ) > .35
+
+  ){
+
+    pose="قيام";
+
+  }
+
+
+  /*
+    ركوع تقريبي
+  */
+
+  else if(
+
+    Math.abs(
+      shoulderY-hipY
+    ) < .18 &&
+
+    Math.abs(
+      hipY-kneeY
+    ) > .10
+
+  ){
+
+    pose="ركوع";
+
+  }
+
+
+  /*
+    وضع أرضي
+  */
+
+  else if(
+
+    kneeY > hipY &&
+
+    Math.abs(
+      shoulderY-kneeY
+    ) < .35
+
+  ){
+
+    pose="سجود / جلوس";
+
+  }
+
+
+  currentPose=pose;
+
+
+  statusBox.textContent =
+  "الوضعية المحتملة: " + pose;
+
+
+  /*
+    حساب الانتقالات
+  */
+
+  if(
+    previousPose !== currentPose
+  ){
+
+    handleTransition(
+      previousPose,
+      currentPose
+    );
+
+    previousPose =
+    currentPose;
+
+  }
+
+
+  /*
+    فحص الذراعين أثناء الوضع الأرضي
+  */
+
+  if(
+    pose==="سجود / جلوس" &&
+    le && re && lw && rw
+  ){
+
+    checkArms(
+      le,re,lw,rw
+    );
+
+  }
+
+}
+
+
+/* =========================
+   انتقالات الصلاة
+========================= */
+
+function handleTransition(
+  oldPose,
+  newPose
+){
+
+  /*
+    دخول السجود
+  */
+
+  if(
+    newPose==="سجود / جلوس"
+  ){
+
+    sajdaCount++;
+
+
+    if(
+      sajdaCount % 2 === 0
+    ){
+
+      rakaa++;
+
+      rakaaBox.textContent =
+      rakaa;
+
+      progress.style.width =
+      Math.min(
+        rakaa*25,
+        100
+      )+"%";
+
+      speak(
+        "انتهت ركعة محتملة"
+      );
+
+    }
+
+  }
+
+
+  /*
+    دخول الركوع
+  */
+
+  if(
+    newPose==="ركوع"
+  ){
+
+    rukuCount++;
+
+  }
+
+
+  /*
+    رسائل تعليمية
+  */
+
+  if(
+    newPose==="قيام"
+  ){
+
+    showMessage(
+      "🧍 تم التعرف على وضعية قيام محتملة."
+    );
+
+  }
+
+
+  if(
+    newPose==="ركوع"
+  ){
+
+    showMessage(
+      "🙇 تم التعرف على وضعية ركوع محتملة."
+    );
+
+  }
+
+
+  if(
+    newPose==="سجود / جلوس"
+  ){
+
+    showMessage(
+      "🧎 تم التعرف على وضع أرضي. سيعمل النظام لاحقًا على التفريق بدقة بين السجود والجلوس."
+    );
+
+  }
+
+}
+
+
+/* =========================
+   فحص المرفقين
+========================= */
+
+function checkArms(
+  le,re,lw,rw
+){
+
+  /*
+    هذه قاعدة هندسية أولية فقط.
     ليست حكمًا شرعيًا.
   */
 
 
-  let pose = "غير معروف";
-  let progress = 25;
+  const left =
+  le.y > lw.y;
+
+  const right =
+  re.y > rw.y;
 
 
-  // قيام تقريبي
-  if(
-    Math.abs(shoulderX-hipX) < .15 &&
-    Math.abs(nose.y-ankleY) > .35
-  ){
+  if(left || right){
 
-    pose = "🧍 قيام";
-    progress = 25;
-  }
+    warning.classList.remove(
+      "hidden"
+    );
 
+    warning.textContent =
+    "💡 ملاحظة تعليمية: راجع وضع الذراعين والمرفقين في السجود.";
 
-  // ركوع تقريبي
-  else if(
-    Math.abs(shoulderY-hipY) < .16 &&
-    Math.abs(hipY-kneeY) > .12
-  ){
-
-    pose = "🙇 ركوع";
-    progress = 50;
-  }
-
-
-  // وضع أرضي تقريبي
-  else if(
-    kneeY > hipY &&
-    Math.abs(shoulderY-kneeY) < .35
-  ){
-
-    pose = "🧎 وضع أرضي: سجود أو جلوس";
-    progress = 75;
-  }
-
-
-  statusBox.textContent =
-    "الوضعية: " + pose;
-
-  progressBar.style.width =
-    progress + "%";
-
-
-  /*
-    فحص تعليمي أولي للمرفقين.
-    لا يعتبر حكمًا على صحة الصلاة.
-  */
-
-  if(
-    pose.includes("سجود") ||
-    pose.includes("أرضي")
-  ){
-
-    if(leftElbow && rightElbow &&
-       leftWrist && rightWrist){
-
-      const leftElbowLow =
-        leftElbow.y > leftWrist.y;
-
-      const rightElbowLow =
-        rightElbow.y > rightWrist.y;
-
-      if(leftElbowLow || rightElbowLow){
-
-        showMessage(
-          "💡 ملاحظة تعليمية: تحقق من وضع ذراعيك ومرفقيك في السجود."
-        );
-
-      }else{
-
-        hideMessage();
-      }
-    }
   }
 
   else{
 
-    hideMessage();
+    warning.classList.add(
+      "hidden"
+    );
+
   }
+
 }
 
 
-/* ---------------------------
-   الرسائل
----------------------------- */
+/* =========================
+   رسالة
+========================= */
 
 function showMessage(text){
 
-  messageBox.classList.remove("hidden");
+  poseMessage.classList.remove(
+    "hidden"
+  );
 
-  messageBox.textContent = text;
+  poseMessage.textContent =
+  text;
+
 }
 
 
 function hideMessage(){
 
-  messageBox.classList.add("hidden");
+  poseMessage.classList.add(
+    "hidden"
+  );
+
 }
 
 
-/* ---------------------------
-   إيقاف الكاميرا
----------------------------- */
+/* =========================
+   الصوت
+========================= */
 
-window.stopCamera = function(){
+function speak(text){
 
-  running = false;
+  if(
+    !("speechSynthesis" in window)
+  )
+  return;
+
+
+  const speech =
+  new SpeechSynthesisUtterance(text);
+
+
+  speech.lang="ar-SA";
+
+  speech.rate=.9;
+
+  window.speechSynthesis.speak(
+    speech
+  );
+
+}
+
+
+/* =========================
+   إيقاف
+========================= */
+
+stopBtn.addEventListener(
+"click",
+stopMonitoring
+);
+
+
+function stopMonitoring(){
+
+  running=false;
+
 
   if(stream){
 
-    stream.getTracks().forEach(
-      track => track.stop()
-    );
+    stream
+    .getTracks()
+    .forEach(track=>{
+      track.stop();
+    });
 
-    stream = null;
+    stream=null;
+
   }
 
-  video.srcObject = null;
 
-  if(poseLandmarker){
+  video.srcObject=null;
 
-    poseLandmarker.close();
 
-    poseLandmarker = null;
+  if(landmarker){
+
+    try{
+      landmarker.close();
+    }
+    catch(e){}
+
+    landmarker=null;
+
   }
 
-  startButton.disabled = false;
 
-  cameraBox.classList.add("hidden");
+  startBtn.disabled=false;
 
-  loading.classList.add("hidden");
+  camera.classList.add(
+    "hidden"
+  );
+
+  loading.classList.add(
+    "hidden"
+  );
+
 
   statusBox.textContent =
-    "لم تبدأ المراقبة بعد";
+  "لم تبدأ المراقبة";
 
-  progressBar.style.width = "0%";
+
+  rakaa=0;
+  sajdaCount=0;
+  rukuCount=0;
+
+  rakaaBox.textContent="0";
+
+  progress.style.width="0%";
 
   hideMessage();
-};
+
+  warning.classList.add(
+    "hidden"
+  );
+
+}
+
 
 </script>
 
