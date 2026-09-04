@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>صلاتي AI</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f4f7f5;
+  color:#17231d;
+}
+header{
+  padding:25px 18px 18px;
+  text-align:center;
+  background:white;
+  border-bottom:1px solid #ddd;
+}
+header h1{margin:0;font-size:32px}
+header p{margin:10px 0 0;color:#68736d}
+
+main{
+  max-width:760px;
+  margin:auto;
+  padding:18px;
+}
+
+.card{
+  background:white;
+  border-radius:20px;
+  padding:20px;
+  margin-bottom:18px;
+  box-shadow:0 4px 18px rgba(0,0,0,.06);
+}
+
+h2{margin-top:0}
+
+button{
+  width:100%;
+  border:0;
+  border-radius:15px;
+  padding:16px;
+  margin-top:10px;
+  font-size:18px;
+  font-weight:bold;
+  cursor:pointer;
+  background:#176b4d;
+  color:white;
+}
+
+button.secondary{
+  background:#e9f0ec;
+  color:#176b4d;
+}
+
+button:disabled{opacity:.5}
+
+.hidden{display:none!important}
+
+.steps{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+.step{
+  background:#f1f5f2;
+  padding:14px;
+  border-radius:14px;
+  text-align:center;
+}
+
+.camera{
+  position:relative;
+  width:100%;
+  aspect-ratio:3/4;
+  background:#111;
+  border-radius:20px;
+  overflow:hidden;
+}
+
+video,canvas{
+  position:absolute;
+  width:100%;
+  height:100%;
+  left:0;
+  top:0;
+  object-fit:cover;
+}
+
+.status{
+  margin-top:14px;
+  padding:16px;
+  border-radius:15px;
+  background:#f1f5f2;
+  font-size:20px;
+  font-weight:bold;
+  text-align:center;
+}
+
+.message{
+  margin-top:10px;
+  padding:14px;
+  border-radius:14px;
+  background:#fff8df;
+  line-height:1.7;
+}
+
+.small{
+  font-size:14px;
+  color:#68736d;
+  line-height:1.7;
+}
+
+ul{
+  line-height:2;
+  padding-right:25px;
+}
+
+.progress{
+  height:10px;
+  background:#e3e8e5;
+  border-radius:20px;
+  overflow:hidden;
+  margin:15px 0;
+}
+
+.progress div{
+  height:100%;
+  width:0%;
+  background:#176b4d;
+  transition:.3s;
+}
+
+footer{
+  text-align:center;
+  padding:30px;
+  color:#777;
+  font-size:13px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🕌 صلاتي AI</h1>
+  <p>مساعد ذكي لتعلّم وتحسين أداء الصلاة</p>
+</header>
+
+<main>
+
+<!-- الصفحة الرئيسية -->
+<section id="home" class="card">
+  <h2>مرحبًا بك 🌿</h2>
+
+  <p>
+    هذا التطبيق يساعدك على تعلّم الصلاة
+    ومراجعة بعض الوضعيات الحركية باستخدام الكاميرا.
+  </p>
+
+  <button onclick="showLearn()">
+    📚 تعلّم الصلاة
+  </button>
+
+  <button onclick="showCamera()" class="secondary">
+    📷 ابدأ المراقبة
+  </button>
+
+  <p class="small">
+    مهم: التطبيق أداة تعليمية ولا يحكم على صحة الصلاة
+    أو بطلانها.
+  </p>
+</section>
+
+
+<!-- تعليم الصلاة -->
+<section id="learn" class="card hidden">
+
+  <h2>📚 تعلّم الصلاة</h2>
+
+  <div class="steps">
+
+    <div class="step">
+      <b>1</b><br>
+      🧍 القيام
+    </div>
+
+    <div class="step">
+      <b>2</b><br>
+      🙏 تكبيرة الإحرام
+    </div>
+
+    <div class="step">
+      <b>3</b><br>
+      🙇 الركوع
+    </div>
+
+    <div class="step">
+      <b>4</b><br>
+      🧍 الرفع
+    </div>
+
+    <div class="step">
+      <b>5</b><br>
+      🧎 السجود
+    </div>
+
+    <div class="step">
+      <b>6</b><br>
+      🪑 الجلوس
+    </div>
+
+  </div>
+
+  <hr>
+
+  <h3>🧎 السجود</h3>
+
+  <p>
+    في السجود توجد هيئة وأحكام متعددة،
+    وسنضيف لاحقًا نظامًا ذكيًا لمراجعة الوضعيات
+    بعد اعتماد القواعد الشرعية من مصادر موثوقة.
+  </p>
+
+  <h3>🙇 الركوع</h3>
+
+  <p>
+    سنعمل لاحقًا على تحليل وضع الظهر والوركين
+    والركبتين والذراعين أثناء الركوع.
+  </p>
+
+  <button onclick="showCamera()">
+    📷 تجربة الكاميرا
+  </button>
+
+  <button onclick="goHome()" class="secondary">
+    ← العودة
+  </button>
+
+</section>
+
+
+<!-- الكاميرا -->
+<section id="cameraPage" class="card hidden">
+
+  <h2>📷 المراقبة الذكية</h2>
+
+  <p class="small">
+    ضع الهاتف في مكان ثابت بحيث يظهر جسمك كاملًا.
+    لا تستخدم الهاتف أثناء الصلاة.
+  </p>
+
+  <button id="startCamera">
+    تشغيل الكاميرا
+  </button>
+
+  <div id="loading" class="status hidden">
+    ⏳ جاري تجهيز الذكاء الاصطناعي...
+  </div>
+
+  <div id="cameraBox" class="camera hidden">
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <div id="status" class="status">
+    لم تبدأ المراقبة بعد
+  </div>
+
+  <div id="message" class="message hidden"></div>
+
+  <div class="progress">
+    <div id="progressBar"></div>
+  </div>
+
+  <button onclick="stopCamera()" class="secondary">
+    إيقاف الكاميرا
+  </button>
+
+  <button onclick="goHome()" class="secondary">
+    ← الرئيسية
+  </button>
+
+</section>
+
+</main>
+
+<footer>
+  صلاتي AI — نسخة تجريبية
+</footer>
+
+
+<script type="module">
+
+import {
+  PoseLandmarker,
+  FilesetResolver
+} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/vision_bundle.mjs";
+
+
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+const startButton = document.getElementById("startCamera");
+const loading = document.getElementById("loading");
+const cameraBox = document.getElementById("cameraBox");
+const statusBox = document.getElementById("status");
+const messageBox = document.getElementById("message");
+const progressBar = document.getElementById("progressBar");
+
+let poseLandmarker = null;
+let stream = null;
+let running = false;
+let lastVideoTime = -1;
+
+
+/* ---------------------------
+   التنقل
+---------------------------- */
+
+window.showLearn = function(){
+  document.getElementById("home").classList.add("hidden");
+  document.getElementById("learn").classList.remove("hidden");
+  document.getElementById("cameraPage").classList.add("hidden");
+};
+
+window.showCamera = function(){
+  document.getElementById("home").classList.add("hidden");
+  document.getElementById("learn").classList.add("hidden");
+  document.getElementById("cameraPage").classList.remove("hidden");
+};
+
+window.goHome = function(){
+  stopCamera();
+  document.getElementById("home").classList.remove("hidden");
+  document.getElementById("learn").classList.add("hidden");
+  document.getElementById("cameraPage").classList.add("hidden");
+};
+
+
+/* ---------------------------
+   تشغيل الكاميرا
+---------------------------- */
+
+startButton.addEventListener("click", startSystem);
+
+async function startSystem(){
+
+  try{
+
+    startButton.disabled = true;
+
+    loading.classList.remove("hidden");
+
+    statusBox.textContent =
+      "⏳ جاري تشغيل الكاميرا...";
+
+    stream = await navigator.mediaDevices.getUserMedia({
+      video:{
+        facingMode:"environment",
+        width:{ideal:640},
+        height:{ideal:480}
+      },
+      audio:false
+    });
+
+    video.srcObject = stream;
+
+    await new Promise(resolve=>{
+      video.onloadedmetadata = resolve;
+    });
+
+    cameraBox.classList.remove("hidden");
+
+    statusBox.textContent =
+      "⏳ جاري تحميل نموذج الذكاء الاصطناعي...";
+
+
+    const vision = await FilesetResolver.forVisionTasks(
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+    );
+
+
+    poseLandmarker =
+      await PoseLandmarker.createFromOptions(
+        vision,
+        {
+          baseOptions:{
+            modelAssetPath:
+            "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
+
+            delegate:"GPU"
+          },
+
+          runningMode:"VIDEO",
+
+          numPoses:1,
+
+          minPoseDetectionConfidence:.55,
+
+          minPosePresenceConfidence:.55,
+
+          minTrackingConfidence:.55
+        }
+      );
+
+
+    loading.classList.add("hidden");
+
+    statusBox.textContent =
+      "🟢 جاهز — ابتعد قليلًا حتى يظهر جسمك كاملًا";
+
+    running = true;
+
+    requestAnimationFrame(processFrame);
+
+  }
+
+  catch(error){
+
+    console.error(error);
+
+    loading.classList.add("hidden");
+
+    startButton.disabled = false;
+
+    statusBox.textContent =
+      "❌ لم نستطع تشغيل الكاميرا.";
+
+    messageBox.classList.remove("hidden");
+
+    messageBox.textContent =
+      "تأكد أنك سمحت للمتصفح باستخدام الكاميرا وأن الموقع مفتوح عبر HTTPS.";
+
+  }
+}
+
+
+/* ---------------------------
+   معالجة الفيديو
+---------------------------- */
+
+async function processFrame(){
+
+  if(!running || !poseLandmarker) return;
+
+  if(video.currentTime !== lastVideoTime){
+
+    lastVideoTime = video.currentTime;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    try{
+
+      const result =
+        poseLandmarker.detectForVideo(
+          video,
+          performance.now()
+        );
+
+      drawPose(result);
+
+      analyzePose(result);
+
+    }catch(error){
+      console.error(error);
+    }
+  }
+
+  requestAnimationFrame(processFrame);
+}
+
+
+/* ---------------------------
+   رسم نقاط الجسم
+---------------------------- */
+
+function drawPose(result){
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  if(
+    !result.landmarks ||
+    result.landmarks.length === 0
+  ) return;
+
+  const points = result.landmarks[0];
+
+  for(const p of points){
+
+    if(p.visibility !== undefined &&
+       p.visibility < .4) continue;
+
+    const x = p.x * canvas.width;
+    const y = p.y * canvas.height;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      x,
+      y,
+      5,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.fill();
+  }
+
+
+  const connections = [
+    [11,12],
+    [11,13],
+    [13,15],
+    [12,14],
+    [14,16],
+
+    [11,23],
+    [12,24],
+    [23,24],
+
+    [23,25],
+    [25,27],
+    [24,26],
+    [26,28],
+
+    [27,31],
+    [28,32]
+  ];
+
+
+  for(const pair of connections){
+
+    const a = points[pair[0]];
+    const b = points[pair[1]];
+
+    if(!a || !b) continue;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      a.x * canvas.width,
+      a.y * canvas.height
+    );
+
+    ctx.lineTo(
+      b.x * canvas.width,
+      b.y * canvas.height
+    );
+
+    ctx.stroke();
+  }
+}
+
+
+/* ---------------------------
+   تحليل الوضعية
+---------------------------- */
+
+function analyzePose(result){
+
+  if(
+    !result.landmarks ||
+    result.landmarks.length === 0
+  ){
+
+    statusBox.textContent =
+      "👤 لم يتم اكتشاف الجسم";
+
+    progressBar.style.width = "0%";
+
+    return;
+  }
+
+
+  const p = result.landmarks[0];
+
+
+  const nose = p[0];
+
+  const leftShoulder = p[11];
+  const rightShoulder = p[12];
+
+  const leftElbow = p[13];
+  const rightElbow = p[14];
+
+  const leftWrist = p[15];
+  const rightWrist = p[16];
+
+  const leftHip = p[23];
+  const rightHip = p[24];
+
+  const leftKnee = p[25];
+  const rightKnee = p[26];
+
+  const leftAnkle = p[27];
+  const rightAnkle = p[28];
+
+
+  if(!nose || !leftShoulder ||
+     !rightShoulder ||
+     !leftHip ||
+     !rightHip){
+
+    statusBox.textContent =
+      "👤 أظهر جسمك كاملًا أمام الكاميرا";
+
+    return;
+  }
+
+
+  const shoulderY =
+    (leftShoulder.y + rightShoulder.y)/2;
+
+  const hipY =
+    (leftHip.y + rightHip.y)/2;
+
+  const kneeY =
+    (leftKnee.y + rightKnee.y)/2;
+
+  const ankleY =
+    (leftAnkle.y + rightAnkle.y)/2;
+
+
+  const shoulderX =
+    (leftShoulder.x + rightShoulder.x)/2;
+
+  const hipX =
+    (leftHip.x + rightHip.x)/2;
+
+
+  const torsoAngle =
+    Math.abs(
+      Math.atan2(
+        shoulderY - hipY,
+        shoulderX - hipX
+      )
+    );
+
+
+  /*
+    هذه المرحلة هندسية تجريبية فقط.
+    ليست حكمًا شرعيًا.
+  */
+
+
+  let pose = "غير معروف";
+  let progress = 25;
+
+
+  // قيام تقريبي
+  if(
+    Math.abs(shoulderX-hipX) < .15 &&
+    Math.abs(nose.y-ankleY) > .35
+  ){
+
+    pose = "🧍 قيام";
+    progress = 25;
+  }
+
+
+  // ركوع تقريبي
+  else if(
+    Math.abs(shoulderY-hipY) < .16 &&
+    Math.abs(hipY-kneeY) > .12
+  ){
+
+    pose = "🙇 ركوع";
+    progress = 50;
+  }
+
+
+  // وضع أرضي تقريبي
+  else if(
+    kneeY > hipY &&
+    Math.abs(shoulderY-kneeY) < .35
+  ){
+
+    pose = "🧎 وضع أرضي: سجود أو جلوس";
+    progress = 75;
+  }
+
+
+  statusBox.textContent =
+    "الوضعية: " + pose;
+
+  progressBar.style.width =
+    progress + "%";
+
+
+  /*
+    فحص تعليمي أولي للمرفقين.
+    لا يعتبر حكمًا على صحة الصلاة.
+  */
+
+  if(
+    pose.includes("سجود") ||
+    pose.includes("أرضي")
+  ){
+
+    if(leftElbow && rightElbow &&
+       leftWrist && rightWrist){
+
+      const leftElbowLow =
+        leftElbow.y > leftWrist.y;
+
+      const rightElbowLow =
+        rightElbow.y > rightWrist.y;
+
+      if(leftElbowLow || rightElbowLow){
+
+        showMessage(
+          "💡 ملاحظة تعليمية: تحقق من وضع ذراعيك ومرفقيك في السجود."
+        );
+
+      }else{
+
+        hideMessage();
+      }
+    }
+  }
+
+  else{
+
+    hideMessage();
+  }
+}
+
+
+/* ---------------------------
+   الرسائل
+---------------------------- */
+
+function showMessage(text){
+
+  messageBox.classList.remove("hidden");
+
+  messageBox.textContent = text;
+}
+
+
+function hideMessage(){
+
+  messageBox.classList.add("hidden");
+}
+
+
+/* ---------------------------
+   إيقاف الكاميرا
+---------------------------- */
+
+window.stopCamera = function(){
+
+  running = false;
+
+  if(stream){
+
+    stream.getTracks().forEach(
+      track => track.stop()
+    );
+
+    stream = null;
+  }
+
+  video.srcObject = null;
+
+  if(poseLandmarker){
+
+    poseLandmarker.close();
+
+    poseLandmarker = null;
+  }
+
+  startButton.disabled = false;
+
+  cameraBox.classList.add("hidden");
+
+  loading.classList.add("hidden");
+
+  statusBox.textContent =
+    "لم تبدأ المراقبة بعد";
+
+  progressBar.style.width = "0%";
+
+  hideMessage();
+};
+
+</script>
+
+</body>
+</html>
