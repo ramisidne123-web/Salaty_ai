@@ -93,6 +93,7 @@ inset:0;
 width:100%;
 height:100%;
 object-fit:cover;
+transform:scaleX(-1);
 }
 
 #canvas{
@@ -102,6 +103,7 @@ width:100%;
 height:100%;
 z-index:2;
 pointer-events:none;
+transform:scaleX(-1);
 }
 
 .guide{
@@ -221,7 +223,6 @@ line-height:1.8;
 font-weight:bold;
 text-align:center;
 }
-
 </style>
 </head>
 
@@ -414,81 +415,39 @@ from
 العناصر
 ===================================================== */
 
-const home =
-document.getElementById("home");
+const home = document.getElementById("home");
+const learn = document.getElementById("learn");
+const monitor = document.getElementById("monitor");
 
-const learn =
-document.getElementById("learn");
+const learnBtn = document.getElementById("learnBtn");
+const monitorBtn = document.getElementById("monitorBtn");
+const learnMonitorBtn = document.getElementById("learnMonitorBtn");
+const learnHomeBtn = document.getElementById("learnHomeBtn");
+const homeBtn = document.getElementById("homeBtn");
 
-const monitor =
-document.getElementById("monitor");
+const startBtn = document.getElementById("startBtn");
+const stopBtn = document.getElementById("stopBtn");
+const resetBtn = document.getElementById("resetBtn");
+const testBtn = document.getElementById("testBtn");
 
-const learnBtn =
-document.getElementById("learnBtn");
+const camera = document.getElementById("camera");
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
 
-const monitorBtn =
-document.getElementById("monitorBtn");
+const statusBox = document.getElementById("status");
+const poseBox = document.getElementById("pose");
+const alertBox = document.getElementById("alert");
+const sequenceBox = document.getElementById("sequence");
+const rakaaBox = document.getElementById("rakaa");
 
-const learnMonitorBtn =
-document.getElementById("learnMonitorBtn");
-
-const learnHomeBtn =
-document.getElementById("learnHomeBtn");
-
-const homeBtn =
-document.getElementById("homeBtn");
-
-const startBtn =
-document.getElementById("startBtn");
-
-const stopBtn =
-document.getElementById("stopBtn");
-
-const resetBtn =
-document.getElementById("resetBtn");
-
-const testBtn =
-document.getElementById("testBtn");
-
-const camera =
-document.getElementById("camera");
-
-const video =
-document.getElementById("video");
-
-const canvas =
-document.getElementById("canvas");
-
-const ctx =
-canvas.getContext("2d");
-
-const statusBox =
-document.getElementById("status");
-
-const poseBox =
-document.getElementById("pose");
-
-const alertBox =
-document.getElementById("alert");
-
-const sequenceBox =
-document.getElementById("sequence");
-
-const rakaaBox =
-document.getElementById("rakaa");
-
-const guideText =
-document.getElementById("guideText");
-
-const loading =
-document.getElementById("loading");
-
-const modelError =
-document.getElementById("modelError");
+const guideText = document.getElementById("guideText");
+const loading = document.getElementById("loading");
+const modelError = document.getElementById("modelError");
 
 
 /* =====================================================
-المتغيرات
+الحالة
 ===================================================== */
 
 let landmarker = null;
@@ -497,13 +456,12 @@ let running = false;
 let animationId = null;
 
 let lastVideoTime = -1;
-let lastDetection = 0;
+let lastDetectionTime = 0;
 
-let poseCandidate = "";
-let poseFrames = 0;
+let candidatePose = "";
+let candidateFrames = 0;
 
-let stablePose = "";
-
+let currentPose = "";
 let movements = [];
 
 let rakaa = 0;
@@ -518,18 +476,20 @@ let lastAlert = 0;
 الإعدادات
 ===================================================== */
 
-const POSE_STABLE_FRAMES = 4;
+const DETECTION_INTERVAL = 100;
 
-const ERROR_STABLE_FRAMES = 5;
+const STABLE_FRAMES = 5;
 
-const ALERT_DELAY = 3500;
+const ERROR_FRAMES = 8;
+
+const ALERT_DELAY = 4000;
 
 
 /* =====================================================
 التنقل
 ===================================================== */
 
-function show(section){
+function showSection(section){
 
 home.classList.add("hidden");
 learn.classList.add("hidden");
@@ -540,66 +500,48 @@ section.classList.remove("hidden");
 }
 
 
-learnBtn.addEventListener(
-"click",
-function(){
+learnBtn.onclick = function(){
 
-show(learn);
+showSection(learn);
 
-}
-);
+};
 
 
-monitorBtn.addEventListener(
-"click",
-function(){
+monitorBtn.onclick = function(){
 
-show(monitor);
+showSection(monitor);
 
-}
-);
+};
 
 
-learnMonitorBtn.addEventListener(
-"click",
-function(){
+learnMonitorBtn.onclick = function(){
 
-show(monitor);
+showSection(monitor);
 
-}
-);
+};
 
 
-learnHomeBtn.addEventListener(
-"click",
-function(){
+learnHomeBtn.onclick = function(){
 
-show(home);
+showSection(home);
 
-}
-);
+};
 
 
-homeBtn.addEventListener(
-"click",
-function(){
+homeBtn.onclick = function(){
 
 stopMonitoring();
 
-show(home);
+showSection(home);
 
-}
-);
+};
 
 
 /* =====================================================
 بدء المراقبة
 ===================================================== */
 
-startBtn.addEventListener(
-"click",
-startMonitoring
-);
+startBtn.onclick = startMonitoring;
 
 
 async function startMonitoring(){
@@ -628,29 +570,34 @@ if(
 !navigator.mediaDevices.getUserMedia
 ){
 
-throw new Error(
-"CAMERA_NOT_SUPPORTED"
-);
+throw new Error("CAMERA_NOT_SUPPORTED");
 
 }
 
 
-/* الكاميرا */
+/* الكاميرا الأمامية */
 
 stream =
 await navigator.mediaDevices.getUserMedia({
 
 video:{
-facingMode:"user",
+facingMode:{
+ideal:"user"
+},
+
 width:{
 ideal:640
 },
+
 height:{
 ideal:480
 },
+
 frameRate:{
-ideal:20
+ideal:20,
+max:30
 }
+
 },
 
 audio:false
@@ -663,7 +610,23 @@ video.srcObject = stream;
 
 /* انتظار الكاميرا */
 
-await waitForVideo();
+await new Promise(function(resolve){
+
+if(video.readyState >= 1){
+
+resolve();
+
+return;
+
+}
+
+video.addEventListener(
+"loadedmetadata",
+resolve,
+{once:true}
+);
+
+});
 
 
 await video.play();
@@ -686,7 +649,7 @@ guideText.textContent =
 "⏳ لحظة واحدة...";
 
 
-/* تحميل MediaPipe */
+/* MediaPipe */
 
 const vision =
 await FilesetResolver.forVisionTasks(
@@ -695,8 +658,6 @@ await FilesetResolver.forVisionTasks(
 
 );
 
-
-/* إنشاء النموذج */
 
 landmarker =
 await PoseLandmarker.createFromOptions(
@@ -718,11 +679,11 @@ runningMode:"VIDEO",
 
 numPoses:1,
 
-minPoseDetectionConfidence:0.30,
+minPoseDetectionConfidence:0.35,
 
-minPosePresenceConfidence:0.30,
+minPosePresenceConfidence:0.35,
 
-minTrackingConfidence:0.30
+minTrackingConfidence:0.35
 
 }
 
@@ -730,6 +691,9 @@ minTrackingConfidence:0.30
 
 
 running = true;
+
+lastVideoTime = -1;
+lastDetectionTime = 0;
 
 loading.classList.add("hidden");
 
@@ -761,27 +725,21 @@ startBtn.textContent =
 "▶️ بدء المراقبة";
 
 
-if(
-error.name === "NotAllowedError"
-){
+if(error.name === "NotAllowedError"){
 
 showModelError(
 "❌ تم رفض إذن الكاميرا. اسمح للمتصفح باستخدام الكاميرا."
 );
 
 }
-else if(
-error.name === "NotFoundError"
-){
+else if(error.name === "NotFoundError"){
 
 showModelError(
 "❌ لم يتم العثور على كاميرا."
 );
 
 }
-else if(
-error.message === "CAMERA_NOT_SUPPORTED"
-){
+else if(error.message === "CAMERA_NOT_SUPPORTED"){
 
 showModelError(
 "❌ هذا المتصفح لا يدعم تشغيل الكاميرا."
@@ -791,7 +749,7 @@ showModelError(
 else{
 
 showModelError(
-"❌ تعذر تشغيل الذكاء الاصطناعي. تأكد من الإنترنت ثم أعد المحاولة."
+"❌ تعذر تشغيل نظام التعرف. تأكد من اتصال الإنترنت ثم حاول مرة أخرى."
 );
 
 }
@@ -805,55 +763,7 @@ statusBox.textContent =
 
 
 /* =====================================================
-انتظار الفيديو
-===================================================== */
-
-function waitForVideo(){
-
-return new Promise(
-function(resolve,reject){
-
-let finished = false;
-
-function done(){
-
-if(finished){
-return;
-}
-
-finished = true;
-
-resolve();
-
-}
-
-if(video.readyState >= 1){
-
-done();
-
-return;
-
-}
-
-video.addEventListener(
-"loadedmetadata",
-done,
-{once:true}
-);
-
-setTimeout(
-done,
-6000
-);
-
-}
-);
-
-}
-
-
-/* =====================================================
-الحلقة الرئيسية
+الحلقة
 ===================================================== */
 
 function loop(time){
@@ -873,7 +783,8 @@ requestAnimationFrame(loop);
 
 
 if(
-time-lastDetection < 100
+time-lastDetectionTime <
+DETECTION_INTERVAL
 ){
 
 return;
@@ -881,9 +792,7 @@ return;
 }
 
 
-if(
-video.readyState < 2
-){
+if(video.readyState < 2){
 
 return;
 
@@ -902,7 +811,7 @@ return;
 lastVideoTime =
 video.currentTime;
 
-lastDetection =
+lastDetectionTime =
 time;
 
 
@@ -914,7 +823,6 @@ video,
 time
 );
 
-
 drawLandmarks(result);
 
 analyze(result);
@@ -923,7 +831,7 @@ analyze(result);
 catch(error){
 
 console.error(
-"Detection:",
+"Pose detection error:",
 error
 );
 
@@ -933,7 +841,7 @@ error
 
 
 /* =====================================================
-رسم النقاط
+رسم الجسم
 ===================================================== */
 
 function drawLandmarks(result){
@@ -949,7 +857,7 @@ canvas.height
 if(
 !result ||
 !result.landmarks ||
-!result.landmarks.length
+result.landmarks.length === 0
 ){
 
 return;
@@ -961,21 +869,26 @@ const p =
 result.landmarks[0];
 
 
-/* النقاط */
+/* النقاط المهمة فقط */
 
-for(
-let i=0;
-i<p.length;
-i++
-){
+const points = [
+0,
+11,12,
+13,14,
+15,16,
+23,24,
+25,26,
+27,28
+];
 
-const point =
-p[i];
+
+for(const id of points){
+
+const point = p[id];
 
 if(!point){
 continue;
 }
-
 
 const visibility =
 point.visibility === undefined
@@ -983,12 +896,8 @@ point.visibility === undefined
 : point.visibility;
 
 
-if(
-visibility < 0.20
-){
-
+if(visibility < 0.25){
 continue;
-
 }
 
 
@@ -997,9 +906,9 @@ ctx.beginPath();
 ctx.arc(
 point.x * canvas.width,
 point.y * canvas.height,
-i===0 ? 7 : 5,
+id === 0 ? 7 : 5,
 0,
-Math.PI*2
+Math.PI * 2
 );
 
 ctx.fill();
@@ -1007,9 +916,9 @@ ctx.fill();
 }
 
 
-/* الخطوط */
+/* خطوط الجسم */
 
-const connections = [
+const lines = [
 
 [11,12],
 
@@ -1033,21 +942,14 @@ const connections = [
 ];
 
 
-for(
-const pair of connections
-){
+for(const line of lines){
 
-const a =
-p[pair[0]];
-
-const b =
-p[pair[1]];
-
+const a = p[line[0]];
+const b = p[line[1]];
 
 if(!a || !b){
 continue;
 }
-
 
 const va =
 a.visibility === undefined
@@ -1059,16 +961,12 @@ b.visibility === undefined
 ? 1
 : b.visibility;
 
-
 if(
-va < 0.20 ||
-vb < 0.20
+va < 0.25 ||
+vb < 0.25
 ){
-
 continue;
-
 }
-
 
 ctx.beginPath();
 
@@ -1098,7 +996,7 @@ function analyze(result){
 if(
 !result ||
 !result.landmarks ||
-!result.landmarks.length
+result.landmarks.length === 0
 ){
 
 statusBox.textContent =
@@ -1121,9 +1019,9 @@ const p =
 result.landmarks[0];
 
 
-/* النقاط الضرورية */
+/* التأكد من رؤية الجسم */
 
-const ids = [
+const required = [
 0,
 11,12,
 13,14,
@@ -1136,19 +1034,15 @@ const ids = [
 
 let visible = 0;
 
+for(const id of required){
 
-for(
-const id of ids
-){
-
-const point =
-p[id];
+const point = p[id];
 
 if(
 point &&
 (
 point.visibility === undefined ||
-point.visibility > 0.20
+point.visibility > 0.25
 )
 ){
 
@@ -1159,9 +1053,7 @@ visible++;
 }
 
 
-if(
-visible < 7
-){
+if(visible < 8){
 
 statusBox.textContent =
 "👤 أحتاج رؤية جسمك بشكل أوضح";
@@ -1193,91 +1085,86 @@ p
 
 
 /* =====================================================
-اكتشاف الوضعية
+اكتشاف وضعية الجسم
 ===================================================== */
 
 function detectPose(p){
 
 const nose = p[0];
 
-const sl = p[11];
-const sr = p[12];
+const leftShoulder = p[11];
+const rightShoulder = p[12];
 
-const wl = p[15];
-const wr = p[16];
+const leftWrist = p[15];
+const rightWrist = p[16];
 
-const hl = p[23];
-const hr = p[24];
+const leftHip = p[23];
+const rightHip = p[24];
 
-const kl = p[25];
-const kr = p[26];
+const leftKnee = p[25];
+const rightKnee = p[26];
 
-const al = p[27];
-const ar = p[28];
-
-
-const sx =
-(sl.x+sr.x)/2;
-
-const sy =
-(sl.y+sr.y)/2;
-
-const hx =
-(hl.x+hr.x)/2;
-
-const hy =
-(hl.y+hr.y)/2;
-
-const kx =
-(kl.x+kr.x)/2;
-
-const ky =
-(kl.y+kr.y)/2;
-
-const ax =
-(al.x+ar.x)/2;
-
-const ay =
-(al.y+ar.y)/2;
-
-const wx =
-(wl.x+wr.x)/2;
-
-const wy =
-(wl.y+wr.y)/2;
+const leftAnkle = p[27];
+const rightAnkle = p[28];
 
 
-/* طول الجسم */
+const shoulderX =
+(leftShoulder.x + rightShoulder.x) / 2;
 
-const height =
-Math.abs(ay-nose.y);
+const shoulderY =
+(leftShoulder.y + rightShoulder.y) / 2;
+
+const hipX =
+(leftHip.x + rightHip.x) / 2;
+
+const hipY =
+(leftHip.y + rightHip.y) / 2;
+
+const kneeY =
+(leftKnee.y + rightKnee.y) / 2;
+
+const ankleY =
+(leftAnkle.y + rightAnkle.y) / 2;
+
+const wristY =
+(leftWrist.y + rightWrist.y) / 2;
 
 
-/* ميل الكتفين */
+/*
+الجسم واقف تقريبًا
+*/
 
-const shoulderTilt =
-Math.abs(sl.y-sr.y);
+const standingHeight =
+ankleY - nose.y;
 
+const torsoVertical =
+Math.abs(hipY - shoulderY);
 
-/* اتجاه الجذع */
-
-const torsoX =
-Math.abs(sx-hx);
-
-const torsoY =
-Math.abs(sy-hy);
+const torsoLean =
+Math.abs(shoulderX - hipX);
 
 
 /* =====================================================
 السجود
-===================================================== */
+=====================================================
+
+في السجود يصبح الرأس والكتفان
+قريبين من مستوى أفقي نسبيًا،
+وتنخفض أجزاء الجسم بشكل واضح.
+*/
+
+const shoulderHipDifference =
+Math.abs(shoulderY - hipY);
 
 if(
 
-nose.y > sy &&
-sy > hy-0.25 &&
-wy > sy-0.10 &&
-ky > hy-0.05
+nose.y > shoulderY - 0.10 &&
+
+shoulderHipDifference < 0.35 &&
+
+kneeY > shoulderY - 0.10 &&
+
+wristY > shoulderY - 0.20
 
 ){
 
@@ -1292,29 +1179,51 @@ return "سجود";
 
 if(
 
-ky > hy &&
-nose.y < ky &&
-height < 0.78 &&
-torsoY < 0.50
+kneeY < ankleY + 0.20 &&
 
+nose.y < kneeY &&
+
+standingHeight < 0.85 &&
+
+torsoVertical < 0.55
+
+){
+
+/*
+نتأكد أنه ليس قيامًا مستقيمًا.
+*/
+
+if(
+standingHeight < 0.75 ||
+torsoLean > 0.08
 ){
 
 return "جلوس";
 
 }
 
+}
+
 
 /* =====================================================
 الركوع
-===================================================== */
+=====================================================
+
+الكتفان يتحركان للأمام بالنسبة للورك،
+ويصبح الجذع أقل عمودية.
+*/
 
 if(
 
-nose.y > sy-0.08 &&
-nose.y < hy+0.20 &&
-torsoX > 0.035 &&
-torsoY < 0.40 &&
-ky > hy-0.20
+torsoLean > 0.08 &&
+
+torsoVertical < 0.48 &&
+
+nose.y > shoulderY - 0.30 &&
+
+nose.y < hipY + 0.35 &&
+
+kneeY > hipY - 0.20
 
 ){
 
@@ -1329,10 +1238,15 @@ return "ركوع";
 
 if(
 
-height > 0.40 &&
-sy < hy &&
-ky > hy &&
-torsoY > 0.12
+standingHeight > 0.40 &&
+
+shoulderY < hipY &&
+
+kneeY > hipY - 0.05 &&
+
+torsoVertical > 0.12 &&
+
+torsoLean < 0.20
 
 ){
 
@@ -1350,40 +1264,31 @@ return "انتقال";
 تثبيت الوضعية
 ===================================================== */
 
-function stabilizePose(
-pose,
-p
-){
+function stabilizePose(pose,p){
 
-if(
-pose === poseCandidate
-){
+if(pose === candidatePose){
 
-poseFrames++;
+candidateFrames++;
 
 }
 else{
 
-poseCandidate =
-pose;
-
-poseFrames =
-1;
+candidatePose = pose;
+candidateFrames = 1;
 
 }
 
 
+/*
+لا نغير الوضعية بسبب إطار واحد.
+*/
+
 if(
-poseFrames >= POSE_STABLE_FRAMES &&
-stablePose !== pose
+candidateFrames >= STABLE_FRAMES &&
+currentPose !== pose
 ){
 
-stablePose =
-pose;
-
-currentPose =
-pose;
-
+currentPose = pose;
 
 poseBox.textContent =
 getEmoji(pose)+" "+pose;
@@ -1392,11 +1297,11 @@ statusBox.textContent =
 "الوضعية الحالية: "+pose;
 
 
-/* لا نسجل الانتقال */
+/*
+لا نسجل الانتقال.
+*/
 
-if(
-pose !== "انتقال"
-){
+if(pose !== "انتقال"){
 
 registerMovement(pose);
 
@@ -1405,12 +1310,11 @@ registerMovement(pose);
 }
 
 
-/* فحص الأخطاء */
+/*
+فحص حركة الجسم فقط
+*/
 
-checkErrors(
-pose,
-p
-);
+checkBodyMovement(pose,p);
 
 }
 
@@ -1421,32 +1325,37 @@ p
 
 function getEmoji(pose){
 
-if(pose==="قيام")
+switch(pose){
+
+case "قيام":
 return "🧍";
 
-if(pose==="ركوع")
+case "ركوع":
 return "🙇";
 
-if(pose==="سجود")
+case "سجود":
 return "🧎";
 
-if(pose==="جلوس")
+case "جلوس":
 return "🪑";
 
+default:
 return "↔️";
+
+}
 
 }
 
 
 /* =====================================================
-تسجيل الحركات
+تسجيل الحركة
 ===================================================== */
 
 function registerMovement(pose){
 
 if(
 movements.length === 0 ||
-movements[movements.length-1] !== pose
+movements[movements.length - 1] !== pose
 ){
 
 movements.push(pose);
@@ -1454,9 +1363,7 @@ movements.push(pose);
 }
 
 
-if(
-movements.length > 30
-){
+if(movements.length > 30){
 
 movements.shift();
 
@@ -1478,23 +1385,18 @@ checkRakaa();
 
 function checkRakaa(){
 
-if(
-movements.length < 6
-){
+if(movements.length < 6){
 
 return;
 
 }
 
 
-const n =
-movements.length;
-
 const last =
-movements.slice(n-6);
+movements.slice(-6);
 
 
-const valid =
+const correctSequence =
 
 last[0] === "قيام" &&
 last[1] === "ركوع" &&
@@ -1504,8 +1406,10 @@ last[4] === "جلوس" &&
 last[5] === "سجود";
 
 
-if(!valid){
+if(!correctSequence){
+
 return;
+
 }
 
 
@@ -1514,62 +1418,76 @@ rakaa++;
 rakaaBox.textContent =
 rakaa;
 
-
 showInfo(
-"✅ تم التعرف على تسلسل ركعة محتمل."
+"✅ تم التعرف على تسلسل حركي كامل."
 );
 
 
 /*
-نبدأ من السجود الأخير
+نحتفظ بآخر حركة
+حتى لا نعيد حساب الركعة.
 */
 
-movements =
-["سجود"];
+movements = ["سجود"];
 
 sequenceBox.textContent =
 "الركعة التالية";
-
 
 }
 
 
 /* =====================================================
-فحص الأخطاء
+فحص حركة الجسم
+=====================================================
+
+مهم جدًا:
+
+هنا لا نقول إن الصلاة صحيحة أو باطلة.
+
+نراقب فقط تغيرات هندسية كبيرة
+في وضع الجسم.
 ===================================================== */
 
-function checkErrors(
-pose,
-p
-){
+function checkBodyMovement(pose,p){
 
 let error = "";
 
 
+/* لا نفحص أثناء الانتقال */
+
+if(pose === "انتقال"){
+
+clearError();
+
+return;
+
+}
+
+
 /* =====================================================
-القيام — الميل
+القيام
 ===================================================== */
 
-if(
-pose === "قيام"
-){
+if(pose === "قيام"){
 
-const sx =
-(p[11].x+p[12].x)/2;
+const shoulderX =
+(p[11].x + p[12].x) / 2;
 
-const hx =
-(p[23].x+p[24].x)/2;
+const hipX =
+(p[23].x + p[24].x) / 2;
 
-const tilt =
-Math.abs(sx-hx);
+const difference =
+Math.abs(shoulderX - hipX);
 
 
-if(
-tilt > 0.28
-){
+/*
+ميل جسدي شديد فقط.
+*/
+
+if(difference > 0.30){
 
 error =
-"⚠️ راجع استقامة جسمك أثناء القيام.";
+"⚠️ راجع استقامة جسمك.";
 
 }
 
@@ -1580,34 +1498,26 @@ error =
 الركوع
 ===================================================== */
 
-if(
-pose === "ركوع"
-){
-
-const sl = p[11];
-const sr = p[12];
-const hl = p[23];
-const hr = p[24];
-
+if(pose === "ركوع"){
 
 const shoulderY =
-(sl.y+sr.y)/2;
+(p[11].y + p[12].y) / 2;
 
 const hipY =
-(hl.y+hr.y)/2;
+(p[23].y + p[24].y) / 2;
 
 
 /*
-تنبيه فقط إذا كان الفرق
-شديدًا جدًا.
+فرق شديد جدًا قد يعني أن
+التعرف على الركوع غير مستقر.
 */
 
 if(
-Math.abs(shoulderY-hipY) > 0.55
+Math.abs(shoulderY - hipY) > 0.65
 ){
 
 error =
-"⚠️ راجع وضعية الركوع واستقامة الظهر.";
+"⚠️ راجع وضع جسمك أثناء الركوع.";
 
 }
 
@@ -1618,38 +1528,25 @@ error =
 السجود
 ===================================================== */
 
-if(
-pose === "سجود"
-){
-
-const nose = p[0];
-
-const sl = p[11];
-const sr = p[12];
-
-const wl = p[15];
-const wr = p[16];
-
+if(pose === "سجود"){
 
 const shoulderY =
-(sl.y+sr.y)/2;
+(p[11].y + p[12].y) / 2;
 
 const wristY =
-(wl.y+wr.y)/2;
+(p[15].y + p[16].y) / 2;
 
 
 /*
-إذا ظهرت اليدان مرتفعتين جدًا
-مقارنة بالجسم.
+نكتفي بمراقبة هندسة الجسم.
 */
 
 if(
-wristY < shoulderY-0.18 &&
-nose.y > shoulderY
+wristY < shoulderY - 0.30
 ){
 
 error =
-"⚠️ راجع وضع الذراعين أثناء السجود.";
+"⚠️ حركة الذراعين غير واضحة أمام الكاميرا.";
 
 }
 
@@ -1660,31 +1557,25 @@ error =
 الجلوس
 ===================================================== */
 
-if(
-pose === "جلوس"
-){
+if(pose === "جلوس"){
 
-const sy =
-(p[11].y+p[12].y)/2;
+const hipY =
+(p[23].y + p[24].y) / 2;
 
-const hy =
-(p[23].y+p[24].y)/2;
-
-const ky =
-(p[25].y+p[26].y)/2;
+const kneeY =
+(p[25].y + p[26].y) / 2;
 
 
 /*
-فحص هندسي بسيط.
+فحص هندسي فقط.
 */
 
 if(
-ky < hy &&
-sy < hy
+kneeY < hipY - 0.20
 ){
 
 error =
-"⚠️ راجع وضعية الجلوس.";
+"⚠️ حركة الجسم أثناء الجلوس غير واضحة.";
 
 }
 
@@ -1692,43 +1583,34 @@ error =
 
 
 /* =====================================================
-تثبيت الخطأ
+تثبيت التنبيه
 ===================================================== */
 
-if(
-error !== ""
-){
+if(error === ""){
 
-if(
-currentError === error
-){
+clearError();
+
+return;
+
+}
+
+
+if(currentError === error){
 
 errorFrames++;
 
 }
 else{
 
-currentError =
-error;
-
-errorFrames =
-1;
+currentError = error;
+errorFrames = 1;
 
 }
 
 
-if(
-errorFrames >= ERROR_STABLE_FRAMES
-){
+if(errorFrames >= ERROR_FRAMES){
 
 issueAlert(error);
-
-}
-
-}
-else{
-
-clearError();
 
 }
 
@@ -1742,39 +1624,30 @@ clearError();
 function clearError(){
 
 currentError = "";
-
 errorFrames = 0;
 
 }
 
 
 /* =====================================================
-إصدار التنبيه
+التنبيه
 ===================================================== */
 
 function issueAlert(text){
 
-const now =
-Date.now();
-
+const now = Date.now();
 
 if(
-now-lastAlert < ALERT_DELAY
+now - lastAlert < ALERT_DELAY
 ){
 
 return;
 
 }
 
-
-lastAlert =
-now;
-
+lastAlert = now;
 
 showError(text);
-
-
-/* صوت */
 
 speak(
 text.replace("⚠️ ","")
@@ -1802,27 +1675,18 @@ try{
 
 window.speechSynthesis.cancel();
 
-
-const utterance =
+const voice =
 new SpeechSynthesisUtterance(text);
 
+voice.lang = "ar-SA";
 
-utterance.lang =
-"ar-SA";
+voice.rate = 0.85;
 
-utterance.rate =
-0.85;
+voice.pitch = 1;
 
-utterance.pitch =
-1;
+voice.volume = 1;
 
-utterance.volume =
-1;
-
-
-window.speechSynthesis.speak(
-utterance
-);
+window.speechSynthesis.speak(voice);
 
 }
 catch(error){
@@ -1849,9 +1713,7 @@ alertBox.className =
 alertBox.textContent =
 text;
 
-alertBox.classList.remove(
-"hidden"
-);
+alertBox.classList.remove("hidden");
 
 }
 
@@ -1864,9 +1726,7 @@ alertBox.className =
 alertBox.textContent =
 text;
 
-alertBox.classList.remove(
-"hidden"
-);
+alertBox.classList.remove("hidden");
 
 }
 
@@ -1884,9 +1744,7 @@ modelError.style.display =
 
 function hideAlert(){
 
-alertBox.classList.add(
-"hidden"
-);
+alertBox.classList.add("hidden");
 
 }
 
@@ -1895,61 +1753,44 @@ alertBox.classList.add(
 اختبار التنبيه
 ===================================================== */
 
-testBtn.addEventListener(
-"click",
-function(){
+testBtn.onclick = function(){
 
-const text =
-"⚠️ اختبار التنبيه: راجع وضعية الصلاة.";
-
-showError(text);
+showError(
+"⚠️ اختبار التنبيه: راجع حركة جسمك."
+);
 
 speak(
-"اختبار التنبيه. راجع وضعية الصلاة."
+"اختبار التنبيه. راجع حركة جسمك."
 );
 
-}
-);
+};
 
 
 /* =====================================================
 إعادة البداية
 ===================================================== */
 
-resetBtn.addEventListener(
-"click",
-function(){
+resetBtn.onclick = function(){
 
 movements = [];
 
 rakaa = 0;
 
-currentPose =
-"انتقال";
+candidatePose = "";
 
-stablePose =
-"";
+candidateFrames = 0;
 
-poseCandidate =
-"";
+currentPose = "";
 
-poseFrames =
-0;
+currentError = "";
 
-currentError =
-"";
+errorFrames = 0;
 
-errorFrames =
-0;
+lastAlert = 0;
 
-lastAlert =
-0;
+rakaaBox.textContent = "0";
 
-rakaaBox.textContent =
-"0";
-
-poseBox.textContent =
-"—";
+poseBox.textContent = "—";
 
 sequenceBox.textContent =
 "لم تبدأ الصلاة";
@@ -1959,18 +1800,15 @@ statusBox.textContent =
 
 hideAlert();
 
-}
-);
+};
 
 
 /* =====================================================
-إيقاف المراقبة
+إيقاف
 ===================================================== */
 
-stopBtn.addEventListener(
-"click",
-stopMonitoring
-);
+stopBtn.onclick =
+stopMonitoring;
 
 
 function stopMonitoring(){
@@ -1980,9 +1818,7 @@ running = false;
 
 if(animationId){
 
-cancelAnimationFrame(
-animationId
-);
+cancelAnimationFrame(animationId);
 
 animationId = null;
 
@@ -1991,9 +1827,7 @@ animationId = null;
 
 if(stream){
 
-stream
-.getTracks()
-.forEach(
+stream.getTracks().forEach(
 function(track){
 
 track.stop();
@@ -2035,13 +1869,9 @@ canvas.height
 );
 
 
-camera.classList.add(
-"hidden"
-);
+camera.classList.add("hidden");
 
-loading.classList.add(
-"hidden"
-);
+loading.classList.add("hidden");
 
 startBtn.disabled = false;
 
@@ -2058,7 +1888,7 @@ poseBox.textContent =
 
 
 /* =====================================================
-تنظيف عند إغلاق الصفحة
+تنظيف الصفحة
 ===================================================== */
 
 window.addEventListener(
