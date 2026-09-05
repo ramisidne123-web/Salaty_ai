@@ -12,15 +12,21 @@
 box-sizing:border-box;
 }
 
-body{
+html,body{
 margin:0;
+padding:0;
+width:100%;
+min-height:100%;
+}
+
+body{
 font-family:Arial,sans-serif;
 background:#f4f7f5;
 color:#17231d;
 }
 
 header{
-background:#ffffff;
+background:#fff;
 padding:22px 15px;
 text-align:center;
 border-bottom:1px solid #ddd;
@@ -43,7 +49,7 @@ padding:16px;
 }
 
 .card{
-background:#ffffff;
+background:#fff;
 padding:18px;
 margin-bottom:16px;
 border-radius:20px;
@@ -56,12 +62,21 @@ width:100%;
 border:0;
 border-radius:14px;
 padding:15px;
-margin:8px 0;
+margin:9px 0;
 font-size:18px;
 font-weight:bold;
 cursor:pointer;
 background:#176b4d;
-color:white;
+color:#fff;
+-webkit-tap-highlight-color:transparent;
+}
+
+button:active{
+transform:scale(.98);
+}
+
+button:disabled{
+opacity:.55;
 }
 
 button.secondary{
@@ -71,7 +86,7 @@ color:#176b4d;
 
 button.danger{
 background:#a52828;
-color:white;
+color:#fff;
 }
 
 .hidden{
@@ -95,14 +110,14 @@ background:#e5f7e9;
 color:#176b4d;
 }
 
-.error{
-background:#ffe5e5;
-color:#8b1e1e;
-}
-
 .warning{
 background:#fff0d5;
 color:#795400;
+}
+
+.error{
+background:#ffe5e5;
+color:#8b1e1e;
 }
 
 .status{
@@ -119,7 +134,7 @@ font-weight:bold;
 text-align:center;
 font-size:28px;
 font-weight:bold;
-margin:15px 0;
+margin:18px 0;
 }
 
 .camera{
@@ -138,25 +153,41 @@ inset:0;
 width:100%;
 height:100%;
 object-fit:cover;
+transform:scaleX(-1);
+}
+
+#poseCanvas{
+position:absolute;
+inset:0;
+width:100%;
+height:100%;
+pointer-events:none;
+transform:scaleX(-1);
 }
 
 .cameraText{
 position:absolute;
 left:5%;
 right:5%;
-bottom:20px;
-background:rgba(0,0,0,.75);
+bottom:15px;
+background:rgba(0,0,0,.72);
 color:white;
 padding:12px;
 border-radius:12px;
 text-align:center;
+font-size:15px;
+z-index:5;
+}
+
+.cameraButton{
+margin-top:12px;
 }
 
 .rule{
-padding:13px;
+padding:14px;
 background:#f7f9f7;
 border-radius:12px;
-margin:8px 0;
+margin:9px 0;
 line-height:1.8;
 }
 
@@ -166,13 +197,23 @@ padding:15px;
 background:#f7f7f7;
 border-radius:14px;
 line-height:2;
+word-break:break-word;
 }
 
 .counter{
 text-align:center;
 font-size:24px;
 font-weight:bold;
-margin:15px 0;
+margin:18px 0;
+}
+
+select{
+width:100%;
+padding:14px;
+border:1px solid #ccc;
+border-radius:12px;
+font-size:17px;
+background:white;
 }
 
 footer{
@@ -181,12 +222,25 @@ color:#777;
 padding:25px;
 }
 
+.small{
+font-size:13px;
+color:#68736d;
+line-height:1.8;
+}
+
+#permissionBox{
+margin-top:12px;
+}
+
+.loading{
+text-align:center;
+padding:15px;
+}
+
 </style>
 </head>
 
-
 <body>
-
 
 <header>
 
@@ -202,9 +256,7 @@ padding:25px;
 <main>
 
 
-<!-- =========================
-     الصفحة الرئيسية
-========================= -->
+<!-- الصفحة الرئيسية -->
 
 <section id="home" class="card">
 
@@ -233,74 +285,45 @@ padding:25px;
 </section>
 
 
-
-<!-- =========================
-     التعلم
-========================= -->
+<!-- صفحة التعلم -->
 
 <section id="learn" class="card hidden">
 
 <h2>📚 تعلم الصلاة</h2>
 
 <div class="rule">
-
 <b>🧍 القيام</b>
-
 <br>
-
 وضع الوقوف.
-
 </div>
 
-
 <div class="rule">
-
 <b>🙇 الركوع</b>
-
 <br>
-
 انحناء الجسم إلى الأمام.
-
 </div>
 
-
 <div class="rule">
-
 <b>🧍 الرفع</b>
-
 <br>
-
 العودة إلى الوقوف بعد الركوع.
-
 </div>
 
-
 <div class="rule">
-
 <b>🧎 السجود</b>
-
 <br>
-
-وضعية أرضية.
-
+وضعية السجود على الأرض.
 </div>
-
 
 <div class="rule">
-
 <b>🪑 الجلوس</b>
-
 <br>
-
 الجلوس بين السجدتين أو في التشهد.
-
 </div>
-
 
 <button id="learnMonitorBtn" type="button">
 📷 ابدأ المراقبة
 </button>
-
 
 <button id="learnHomeBtn" type="button" class="secondary">
 ← الرئيسية
@@ -309,15 +332,11 @@ padding:25px;
 </section>
 
 
-
-<!-- =========================
-     المراقبة
-========================= -->
+<!-- صفحة المراقبة -->
 
 <section id="monitor" class="card hidden">
 
 <h2>📷 مراقبة الصلاة</h2>
-
 
 <label for="prayer">
 اختر الصلاة:
@@ -326,14 +345,7 @@ padding:25px;
 <br>
 <br>
 
-
-<select id="prayer" style="
-width:100%;
-padding:14px;
-border:1px solid #ccc;
-border-radius:12px;
-font-size:17px;
-">
+<select id="prayer">
 
 <option value="2">
 الفجر — ركعتان
@@ -372,11 +384,21 @@ playsinline
 muted>
 </video>
 
+<canvas id="poseCanvas"></canvas>
+
 <div class="cameraText">
-📷 الكاميرا تعمل
+📷 الكاميرا الأمامية تعمل
 <br>
-أظهر جسمك كاملًا
+أظهر جسمك كاملًا داخل الصورة
 </div>
+
+</div>
+
+
+<div id="permissionBox" class="notice info hidden">
+
+إذا طلب المتصفح إذن الكاميرا، اختر
+<b>السماح / Allow</b>.
 
 </div>
 
@@ -407,9 +429,7 @@ muted>
 </b>
 
 <div id="sequence">
-
 لم تبدأ الصلاة
-
 </div>
 
 </div>
@@ -418,10 +438,7 @@ muted>
 <div class="counter">
 
 الركعة:
-
-<span id="rakaa">
-0
-</span>
+<span id="rakaa">0</span>
 
 </div>
 
@@ -442,7 +459,7 @@ muted>
 
 <button id="stopBtn" type="button" class="danger">
 
-⏹️ إيقاف
+⏹️ إيقاف الكاميرا
 
 </button>
 
@@ -454,8 +471,14 @@ muted>
 </button>
 
 
-</section>
+<p class="small">
 
+ضع الهاتف في مكان ثابت، واجعل جسمك كاملًا ظاهرًا.
+يفضل استخدام الهاتف على مسافة مناسبة وإضاءة جيدة.
+
+</p>
+
+</section>
 
 </main>
 
@@ -470,21 +493,13 @@ muted>
 
 <script>
 
-/*
-====================================================
-صلاتي AI
-نسخة اختبار الأزرار والكاميرا
-
-لا يوجد MediaPipe هنا.
-الهدف:
-التأكد أن JavaScript والأزرار تعمل.
-====================================================
-*/
+/* =====================================================
+   صلاتي AI
+   نسخة مستقرة للأزرار والكاميرا
+===================================================== */
 
 
-/* =========================
-   العناصر
-========================= */
+/* العناصر */
 
 const home =
 document.getElementById("home");
@@ -513,20 +528,26 @@ document.getElementById("homeBtn");
 const startBtn =
 document.getElementById("startBtn");
 
-const testBtn =
-document.getElementById("testBtn");
+const stopBtn =
+document.getElementById("stopBtn");
 
 const resetBtn =
 document.getElementById("resetBtn");
 
-const stopBtn =
-document.getElementById("stopBtn");
+const testBtn =
+document.getElementById("testBtn");
 
 const camera =
 document.getElementById("camera");
 
 const video =
 document.getElementById("video");
+
+const canvas =
+document.getElementById("poseCanvas");
+
+const ctx =
+canvas.getContext("2d");
 
 const statusBox =
 document.getElementById("status");
@@ -543,10 +564,11 @@ document.getElementById("sequence");
 const rakaaBox =
 document.getElementById("rakaa");
 
+const permissionBox =
+document.getElementById("permissionBox");
 
-/* =========================
-   المتغيرات
-========================= */
+
+/* المتغيرات */
 
 let stream = null;
 
@@ -556,10 +578,12 @@ let movements = [];
 
 let rakaa = 0;
 
+let animationFrame = null;
 
-/* =========================
-   إظهار صفحة
-========================= */
+
+/* =====================================================
+   التنقل بين الصفحات
+===================================================== */
 
 function showPage(page){
 
@@ -574,105 +598,76 @@ page.classList.remove("hidden");
 }
 
 
-/* =========================
-   زر تعلم الصلاة
-========================= */
+/* الصفحة الرئيسية */
 
-learnBtn.onclick = function(){
+learnBtn.addEventListener("click",function(){
 
 showPage(learn);
 
-};
+});
 
 
-/* =========================
-   زر المراقبة
-========================= */
+/* المراقبة */
 
-monitorBtn.onclick = function(){
+monitorBtn.addEventListener("click",function(){
 
 showPage(monitor);
 
-};
+});
 
 
-/* =========================
-   مراقبة من صفحة التعلم
-========================= */
+/* المراقبة من صفحة التعلم */
 
-learnMonitorBtn.onclick = function(){
+learnMonitorBtn.addEventListener("click",function(){
 
 showPage(monitor);
 
-};
+});
 
 
-/* =========================
-   العودة للرئيسية
-========================= */
+/* العودة */
 
-learnHomeBtn.onclick = function(){
+learnHomeBtn.addEventListener("click",function(){
 
 showPage(home);
 
-};
+});
 
 
-/* =========================
-   الرئيسية من المراقبة
-========================= */
+/* العودة من المراقبة */
 
-homeBtn.onclick = function(){
+homeBtn.addEventListener("click",function(){
 
 stopCamera();
 
 showPage(home);
 
-};
+});
 
 
-/* =========================
+/* =====================================================
    اختبار التنبيه
-========================= */
+===================================================== */
 
-testBtn.onclick = function(){
+testBtn.addEventListener("click",function(){
 
-alertBox.textContent =
-"⚠️ اختبار التنبيه: راجع وضعية الجسم.";
+showAlert(
+"⚠️ اختبار التنبيه: راجع وضعية الجسم.",
+"warning"
+);
 
-alertBox.className =
-"notice warning";
-
-alertBox.classList.remove("hidden");
-
-
-/*
-الصوت
-*/
-
-if("speechSynthesis" in window){
-
-const message =
-new SpeechSynthesisUtterance(
+speak(
 "اختبار التنبيه. راجع وضعية الجسم."
 );
 
-message.lang = "ar-SA";
-
-window.speechSynthesis.cancel();
-
-window.speechSynthesis.speak(message);
-
-}
-
-};
+});
 
 
-/* =========================
+/* =====================================================
    إعادة البداية
-========================= */
+===================================================== */
 
-resetBtn.onclick = function(){
+resetBtn.addEventListener("click",function(){
 
 movements = [];
 
@@ -686,22 +681,23 @@ sequenceBox.textContent =
 "لم تبدأ الصلاة";
 
 statusBox.textContent =
-"🟢 جاهز";
+cameraRunning
+? "🟢 الكاميرا تعمل"
+: "🟢 جاهز";
 
 alertBox.classList.add("hidden");
 
-};
+});
 
 
-/* =========================
+/* =====================================================
    تشغيل الكاميرا
-========================= */
+===================================================== */
 
-startBtn.onclick = async function(){
+startBtn.addEventListener("click",startCamera);
 
-/*
-إذا كانت تعمل
-*/
+
+async function startCamera(){
 
 if(cameraRunning){
 
@@ -710,14 +706,33 @@ return;
 }
 
 
+if(
+!navigator.mediaDevices ||
+!navigator.mediaDevices.getUserMedia
+){
+
+showAlert(
+"❌ المتصفح لا يدعم تشغيل الكاميرا. افتح الموقع باستخدام Chrome.",
+"error"
+);
+
+return;
+
+}
+
+
 try{
 
+startBtn.disabled = true;
+
 statusBox.textContent =
-"⏳ جاري تشغيل الكاميرا...";
+"⏳ جاري طلب إذن الكاميرا...";
+
+permissionBox.classList.remove("hidden");
 
 
 /*
-طلب الكاميرا الأمامية
+الكاميرا الأمامية
 */
 
 stream =
@@ -727,15 +742,14 @@ video:{
 facingMode:{
 ideal:"user"
 },
-
 width:{
-ideal:640
+ideal:1280,
+min:320
 },
-
 height:{
-ideal:480
+ideal:720,
+min:240
 }
-
 },
 
 audio:false
@@ -743,11 +757,63 @@ audio:false
 });
 
 
+permissionBox.classList.add("hidden");
+
+
 /*
-ربط الكاميرا بالفيديو
+ربط الكاميرا
 */
 
 video.srcObject = stream;
+
+
+/*
+انتظار تشغيل الفيديو
+*/
+
+await new Promise(function(resolve){
+
+if(video.readyState >= 2){
+
+resolve();
+
+return;
+
+}
+
+video.addEventListener(
+"loadeddata",
+resolve,
+{once:true}
+);
+
+});
+
+
+try{
+
+await video.play();
+
+}
+catch(error){
+
+console.log(
+"video play:",
+error
+);
+
+}
+
+
+/*
+تحديد حجم الرسم
+*/
+
+canvas.width =
+video.videoWidth || 640;
+
+canvas.height =
+video.videoHeight || 480;
 
 
 /*
@@ -760,57 +826,199 @@ cameraRunning = true;
 
 
 /*
-تغيير الزر
+تغيير الأزرار والحالة
 */
+
+startBtn.disabled = false;
 
 startBtn.textContent =
 "🟢 الكاميرا تعمل";
 
-
 statusBox.textContent =
-"🟢 الكاميرا تعمل";
-
+"🟢 الكاميرا الأمامية تعمل";
 
 poseBox.textContent =
 "📷 جاهز للمراقبة";
 
 
+/*
+بدء المراقبة البصرية
+*/
+
+startVisualMonitor();
+
 }
 catch(error){
 
-console.error(error);
+console.error(
+"Camera error:",
+error
+);
 
-statusBox.textContent =
-"❌ لم تعمل الكاميرا";
+cameraRunning = false;
+
+startBtn.disabled = false;
+
+startBtn.textContent =
+"▶️ بدء المراقبة";
 
 
-alertBox.textContent =
-"❌ لم يتم تشغيل الكاميرا. تأكد من إعطاء الموقع إذن استخدام الكاميرا.";
+if(error.name === "NotAllowedError"){
 
-alertBox.className =
-"notice error";
+showAlert(
+"❌ تم رفض إذن الكاميرا. اضغط على رمز القفل بجانب عنوان الموقع ثم اسمح باستخدام الكاميرا.",
+"error"
+);
 
-alertBox.classList.remove("hidden");
+}
+else if(error.name === "NotFoundError"){
+
+showAlert(
+"❌ لم يتم العثور على كاميرا في الجهاز.",
+"error"
+);
+
+}
+else if(error.name === "NotReadableError"){
+
+showAlert(
+"❌ الكاميرا مستخدمة من تطبيق آخر. أغلق التطبيقات التي تستخدم الكاميرا ثم حاول مرة أخرى.",
+"error"
+);
+
+}
+else if(error.name === "SecurityError"){
+
+showAlert(
+"❌ المتصفح منع الوصول إلى الكاميرا بسبب إعدادات الأمان. افتح الموقع عبر HTTPS.",
+"error"
+);
+
+}
+else{
+
+showAlert(
+"❌ لم تعمل الكاميرا. تأكد من السماح للمتصفح باستخدام الكاميرا ثم حاول مرة أخرى.",
+"error"
+);
 
 }
 
-};
+statusBox.textContent =
+"❌ لم تبدأ الكاميرا";
+
+}
+
+}
 
 
-/* =========================
+/* =====================================================
+   مراقبة الصورة
+===================================================== */
+
+function startVisualMonitor(){
+
+if(!cameraRunning){
+
+return;
+
+}
+
+
+drawSimpleGuide();
+
+animationFrame =
+requestAnimationFrame(startVisualMonitor);
+
+}
+
+
+/* =====================================================
+   رسم دليل على الكاميرا
+===================================================== */
+
+function drawSimpleGuide(){
+
+if(!cameraRunning){
+
+return;
+
+}
+
+
+ctx.clearRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+
+/*
+إطار تقريبي
+*/
+
+const x =
+canvas.width * 0.10;
+
+const y =
+canvas.height * 0.04;
+
+const w =
+canvas.width * 0.80;
+
+const h =
+canvas.height * 0.90;
+
+
+ctx.setLineDash([12,10]);
+
+ctx.lineWidth = 4;
+
+ctx.strokeStyle = "rgba(255,255,255,.9)";
+
+ctx.strokeRect(
+x,
+y,
+w,
+h
+);
+
+ctx.setLineDash([]);
+
+
+/*
+نقطة وسطية لإرشاد المستخدم
+*/
+
+ctx.beginPath();
+
+ctx.arc(
+canvas.width/2,
+canvas.height*0.50,
+5,
+0,
+Math.PI*2
+);
+
+ctx.fillStyle =
+"rgba(255,255,255,.9)";
+
+ctx.fill();
+
+}
+
+
+/* =====================================================
    إيقاف الكاميرا
-========================= */
+===================================================== */
 
-stopBtn.onclick = function(){
+stopBtn.addEventListener("click",function(){
 
 stopCamera();
 
-};
+});
 
-
-/* =========================
-   دالة إيقاف الكاميرا
-========================= */
 
 function stopCamera(){
 
@@ -818,7 +1026,22 @@ cameraRunning = false;
 
 
 /*
-إيقاف جميع المسارات
+إيقاف Animation
+*/
+
+if(animationFrame){
+
+cancelAnimationFrame(
+animationFrame
+);
+
+animationFrame = null;
+
+}
+
+
+/*
+إيقاف الكاميرا
 */
 
 if(stream){
@@ -844,23 +1067,38 @@ video.srcObject = null;
 
 
 /*
+مسح الرسم
+*/
+
+ctx.clearRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+
+/*
 إخفاء الكاميرا
 */
 
 camera.classList.add("hidden");
+
+permissionBox.classList.add("hidden");
 
 
 /*
 إعادة الزر
 */
 
+startBtn.disabled = false;
+
 startBtn.textContent =
 "▶️ بدء المراقبة";
 
 
 statusBox.textContent =
-"تم إيقاف المراقبة";
-
+"تم إيقاف الكاميرا";
 
 poseBox.textContent =
 "—";
@@ -868,9 +1106,66 @@ poseBox.textContent =
 }
 
 
-/* =========================
+/* =====================================================
+   التنبيه
+===================================================== */
+
+function showAlert(text,type){
+
+alertBox.textContent = text;
+
+alertBox.className =
+"notice " + type;
+
+alertBox.classList.remove("hidden");
+
+}
+
+
+function speak(text){
+
+if(
+!("speechSynthesis" in window)
+){
+
+return;
+
+}
+
+
+try{
+
+window.speechSynthesis.cancel();
+
+const message =
+new SpeechSynthesisUtterance(text);
+
+message.lang = "ar-SA";
+
+message.rate = 0.85;
+
+message.pitch = 1;
+
+message.volume = 1;
+
+window.speechSynthesis.speak(message);
+
+}
+catch(error){
+
+console.log(
+"Speech error:",
+error
+);
+
+}
+
+}
+
+
+/* =====================================================
    تنظيف عند مغادرة الصفحة
-========================= */
+===================================================== */
 
 window.addEventListener(
 "beforeunload",
@@ -882,18 +1177,22 @@ stopCamera();
 );
 
 
-/*
-====================================================
-تم تحميل JavaScript بنجاح
-====================================================
-*/
+/* =====================================================
+   منع مشكلة الأزرار في بعض المتصفحات
+===================================================== */
+
+document.addEventListener(
+"DOMContentLoaded",
+function(){
 
 console.log(
-"صلاتي AI: JavaScript يعمل بنجاح"
+"صلاتي AI جاهز"
+);
+
+}
 );
 
 </script>
-
 
 </body>
 </html>
